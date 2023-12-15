@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HDTBobsLeagueTourneyDLC", "HDTBobsLeagueTourneyDLC\HDTBobsLeagueTourneyDLC.csproj", "{974755C0-3F07-481D-B138-90D2A88D4428}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{974755C0-3F07-481D-B138-90D2A88D4428}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{974755C0-3F07-481D-B138-90D2A88D4428}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{974755C0-3F07-481D-B138-90D2A88D4428}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{974755C0-3F07-481D-B138-90D2A88D4428}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D1F1AF9D-5977-4249-8811-FAF80E399976}
+	EndGlobalSection
+EndGlobal
