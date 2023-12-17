@@ -36,7 +36,7 @@ namespace HDTBobsLeagueTourneyDLC
             };
             LogGameHistory();
 
-            await FetchBobsEntityId();
+            FetchBobsEntityId();
 
             // TODO ? Update Battletag if reconnecting during a fight turn ?
         }
@@ -84,20 +84,11 @@ namespace HDTBobsLeagueTourneyDLC
             }
         }
 
-        private async Task FetchBobsEntityId()
+        private void FetchBobsEntityId()
         {
-            const int maxAttempts = 400;
-            const int delayBetweenAttempts = 250;
-
-            await AwaitGameEntity();
             Log.Info("Time to go get Bob !");
 
-            Entity bobHeroEntity = null;
-            for (var i = 0; i < maxAttempts; i++)
-            {
-                Log.Info($"Attempt: {i}. Elapsed: {i * delayBetweenAttempts}");
-
-                bobHeroEntity = Core.Game.Entities.Values.Where(entity =>
+            Entity bobHeroEntity = Core.Game.Entities.Values.Where(entity =>
                 {
                     if (entity.CardId != null)
                     {
@@ -108,42 +99,16 @@ namespace HDTBobsLeagueTourneyDLC
                         return false;
                     }
                 }).FirstOrDefault();
-                await Task.Delay(delayBetweenAttempts);
 
-                if (bobHeroEntity != null)
-                {
-                    Log.Info("Bob entity found (hopefully).");
-                    break;
-                }
-            }
+            Log.Info("Bob entity found (hopefully).");
 
             Entity opponentEntity = Core.Game.Entities.Values.Where(entity => entity.GetTag(HERO_ENTITY) == bobHeroEntity.Id).FirstOrDefault();
 
             Log.Info($"OpponentEntityId: {opponentEntity.Id}");
-            Log.Info($"OpponentEntityId: {opponentEntity.Name}");
+            Log.Info($"OpponentEntityName: {opponentEntity.Name}");
             OpponentEntityId = opponentEntity.Id;
         }
-        public async Task AwaitGameEntity() // TODO: remove if it works without it :)
-        {
-            const int maxAttempts = 40;
-            const int delayBetweenAttempts = 250;
-            const int gameFadeInDelay = 1000;
 
-            // Loop until enough heroes are loaded
-            for (var i = 0; i < maxAttempts; i++)
-            {
-                await Task.Delay(delayBetweenAttempts);
-
-                var loadedHeroes = Core.Game.Player.PlayerEntities
-                    .Where(x => x.IsHero && (x.HasTag(BACON_HERO_CAN_BE_DRAFTED) || x.HasTag(BACON_SKIN)));
-
-                if (loadedHeroes.Count() >= 2)
-                {
-                    await Task.Delay(gameFadeInDelay);
-                    break;
-                }
-            }
-        }
         internal void HandleNewTurn(ActivePlayer player)
         {
             Log.Error("DLC - New Turn");
