@@ -30,9 +30,8 @@ namespace HDTBobsLeagueTourneyDLC
         public void OnLoad()
         {
             GameState = new GameState();
-            /*            GameEvents.OnGameStart.Add(anomalyDisplay.HandleGameStart);
-                        GameEvents.OnGameEnd.Add(anomalyDisplay.ClearCard);*/
-            GameEvents.OnTurnStart.Add(GameState.SaveNewTurnState);
+            GameEvents.OnGameStart.Add(GameState.InitializeGame); 
+            GameEvents.OnTurnStart.Add(GameState.HandleNewTurn);
             GameEvents.OnGameEnd.Add(GameState.SaveEndGameState);
 
             // Processing GameStart logic in case plugin was loaded/unloaded after starting a game without restarting HDT

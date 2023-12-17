@@ -1,12 +1,13 @@
 ﻿using HearthDb.Enums;
 using Hearthstone_Deck_Tracker.API;
 using Hearthstone_Deck_Tracker.Enums;
-using Hearthstone_Deck_Tracker.Hearthstone;
 using Hearthstone_Deck_Tracker.Hearthstone.Entities;
 using Hearthstone_Deck_Tracker.Utility.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Navigation;
+using System.Threading.Tasks;
+using static HearthDb.Enums.GameTag;
 
 
 namespace HDTBobsLeagueTourneyDLC
@@ -14,102 +15,201 @@ namespace HDTBobsLeagueTourneyDLC
     internal class GameState
     {
         private string Author;
+        private int OpponentEntityId = 0;
+        private bool IsSpectator;
+
 
         private Dictionary<int, TurnState> GameHistory;
 
         public GameState() { }
 
-        internal void SaveNewTurnState(ActivePlayer player)
+        internal async void InitializeGame()
         {
-            Log.Error("DLC - New Turn");
-            Log.Error("DLC - player: " + player);
 
-            for (int i = 0; i < 7; i++)
+            await AwaitHeroesSelection();
+            TurnState newTurn = new TurnState();
+            Log.Info("Logging qfqsd...");
+
+            GameHistory = new Dictionary<int, TurnState>
             {
-                Entity entity = Core.Game.Entities.Values.Where(x => x.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE) == i + 1).FirstOrDefault();
-                Log.Error(entity.ToString());
-            }
+                { Core.Game.GetTurnNumber(), newTurn }
+            };
+            LogGameHistory();
 
+            await FetchBobsEntityId();
 
+            // TODO ? Update Battletag if reconnecting during a fight turn ?
+        }
 
-            Log.Error("===================================================================");
+        private async Task AwaitHeroesSelection()
+        {
+            const int maxAttempts = 40;
+            const int delayBetweenAttempts = 250;
 
-            for (int i = 0; i < 7; i++)
+            int selectedHeroesCount = 0;
+
+            while (selectedHeroesCount != 8)
             {
-                Entity entity2 = Core.Game.Entities.Values.Where(x => x.GetTag(GameTag.NUM_TURNS_IN_PLAY) != 0).FirstOrDefault();
-                Log.Error(entity2.ToString());
-            }
-            Log.Error("xjmire;guqpeori;gdql!er;swv*%PERSKG.FVPOITJGVBXWIOZTEJOVBJOKL%?QAEZFBNVOLKp<qafznrhjtbioùaterjhngbiko'ethnbg");
+                await Task.Delay(delayBetweenAttempts);
 
-            Log.Error(Core.Game.Player.Id.ToString());
-            Log.Error(Core.Game.Player.Name);
-            Log.Error(Core.Game.Opponent.Id.ToString());
-            Log.Error(Core.Game.Opponent.Name);
-            Log.Error("xjmire;guqpeori;gdql!er;swv*%PERSKG.FVPOITJGVBXfWIOZTEJOVBJOKL%?QAEZFBNVOLKp<qafznrhjtbioùaterjhngbiko'ethnbg");
-            Log.Error("xjmire;guqpeori;gdql!er;swv*%PERSKG.FVPOITJGVBXWIOfZTEJOVBJOKL%?QAEZFBNVOLKp<qafznrhjtbioùaterjhngbiko'ethnbg");
-            Log.Error("xjmire;guqpeori;gdql!er;swv*%PERSKG.FVPOITJGVBXWfIOfZTEJOVBJOKL%?QAEZFBNVOLKp<qafznrhjtbioùaterjhngbiko'ethnbg");
-            Log.Error("xjmire;guqpeori;gdql!er;swv*%PERSKG.FVPOITJGVBXWIOZTfEJOVBJOKL%?QAEZFBNVOLKp<qafznrhjtbioùaterjhngbiko'ethnbg");
-            Log.Error("xjmire;guqpeori;gdql!er;swv*%PERSKG.FVPOITJGVBXWIOZTEfJOVBJOKL%?QAEZFBNVOLKp<qafznrhjtbioùaterjhngbiko'ethnbg");
-            Log.Error("xjmire;guqpeori;gdql!er;swv*%PERSKG.FVPOITJGVBXWIOZTEJfOVBJOKL%?QAEZFBNVOLKp<qafznrhjtbioùaterjhngbiko'ethnbg");
-            Log.Error("xjmire;guqpeori;gdql!er;swv*%PERSKG.FVPOITJGVBXWIOZTEJOfVBJOKL%?QAEZFBNVOLKp<qafznrhjtbioùaterjhngbiko'ethnbg");
-
-
-            Log.Error("Ca va être massif");
-
-            foreach (Entity e in Core.Game.Entities.Values.Where(x => { return true; }))
-            {
-                if (e != null && e.Name != "")
+                if (selectedHeroesCount == 8)
                 {
-                    Log.Error(e.Name);
-                    Log.Error(e.ToString());
-
-                    Log.Error("Hero titty: " + e.GetTag(GameTag.HERO_ENTITY).ToString());
-
-                    if (e.GetTag(GameTag.HERO_ENTITY) != 0)
-                    {
-                        Entity entitties = Core.Game.Entities.Values.Where(x => x.Id == e.GetTag(GameTag.HERO_ENTITY)).FirstOrDefault();
-                        Log.Error(entitties.ToString());
-                    }
-
+                    Log.Info("All heroes have been selected.");
+                    break;
                 }
 
             }
+            for (var i = 0; i < maxAttempts; i++)
+            {
+                Log.Info($"Attempt: {i}. Elapsed: {i * delayBetweenAttempts}");
 
-            Log.Error("Alors ?");
+                await Task.Delay(delayBetweenAttempts);
 
-            //resources
-            BattlegroundsUtils.GetOriginalHeroId("abc");
-            Entity gameEntity = Core.Game.GameEntity;
-            GameMode gameMode = Core.Game.CurrentGameMode;
-            /*            Core.Game.Entities*/
-            //GameStats
-            //UpdateBattlegroundsOverlay
-            //GameV2 private bool? _spectator;
+                if (selectedHeroesCount == 8)
+                {
+                    Log.Info("All heroes have been selected.");
+                    break;
+                }
+            }
+        }
 
+        private void LogGameHistory()
+        {
+            Log.Info("Logging GameHistory...");
 
-            if (IsFirstTurn()) { }
+            foreach (var kvp in GameHistory)
+            {
+                Log.Info(kvp.Key.ToString());
+                Log.Info(kvp.Value.ToString());
+            }
+        }
+
+        private async Task FetchBobsEntityId()
+        {
+            const int maxAttempts = 400;
+            const int delayBetweenAttempts = 250;
+
+            await AwaitGameEntity();
+            Log.Info("Time to go get Bob !");
+
+            Entity bobHeroEntity = null;
+            for (var i = 0; i < maxAttempts; i++)
+            {
+                Log.Info($"Attempt: {i}. Elapsed: {i * delayBetweenAttempts}");
+
+                bobHeroEntity = Core.Game.Entities.Values.Where(entity =>
+                {
+                    if (entity.CardId != null)
+                    {
+                        return entity.CardId == "TB_BaconShopBob";
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }).FirstOrDefault();
+                await Task.Delay(delayBetweenAttempts);
+
+                if (bobHeroEntity != null)
+                {
+                    Log.Info("Bob entity found (hopefully).");
+                    break;
+                }
+            }
+
+            Entity opponentEntity = Core.Game.Entities.Values.Where(entity => entity.GetTag(HERO_ENTITY) == bobHeroEntity.Id).FirstOrDefault();
+
+            Log.Info($"OpponentEntityId: {opponentEntity.Id}");
+            Log.Info($"OpponentEntityId: {opponentEntity.Name}");
+            OpponentEntityId = opponentEntity.Id;
+        }
+        public async Task AwaitGameEntity() // TODO: remove if it works without it :)
+        {
+            const int maxAttempts = 40;
+            const int delayBetweenAttempts = 250;
+            const int gameFadeInDelay = 1000;
+
+            // Loop until enough heroes are loaded
+            for (var i = 0; i < maxAttempts; i++)
+            {
+                await Task.Delay(delayBetweenAttempts);
+
+                var loadedHeroes = Core.Game.Player.PlayerEntities
+                    .Where(x => x.IsHero && (x.HasTag(BACON_HERO_CAN_BE_DRAFTED) || x.HasTag(BACON_SKIN)));
+
+                if (loadedHeroes.Count() >= 2)
+                {
+                    await Task.Delay(gameFadeInDelay);
+                    break;
+                }
+            }
+        }
+        internal void HandleNewTurn(ActivePlayer player)
+        {
+            Log.Error("DLC - New Turn");
+            Log.Error($"DLC - player: {player}");
+            Log.Error($"DLC - turn: {Core.Game.GetTurnNumber()}");
+            LogGameHistory();
+
+            // TODO add a check (done only once) that the GameHistory has been initialized or wait
+
+            if (player == ActivePlayer.Opponent)
+            {
+                UpdateBattletag(OpponentEntityId);
+            }
+            else if (player == ActivePlayer.Player)
+            {
+                SaveNewTurnState();
+            }
+            else
+            {
+                Log.Error("ActivePlayer is None and I don't know why...");
+            }
 
             DumpState();
+        }
+
+        private void SaveNewTurnState()
+        {
+            TurnState newTurn = new TurnState(GameHistory[Core.Game.GetTurnNumber() - 1], OpponentEntityId);
+
+            GameHistory.Add(Core.Game.GetTurnNumber(), newTurn);
+
+            /* Resources :
+            //BattlegroundsUtils.GetOriginalHeroId("abc");
+            //GameStats
+            //GameV2 public bool Spectator;
+            */
+        }
+
+        private void UpdateBattletag(int opponentEntityId)
+        {
+            Entity opponentEntity = Core.Game.Entities.Values.Where(entity => entity.Id == opponentEntityId).FirstOrDefault();
+            Log.Error($"Name: <{opponentEntity.Name}>");
+
+            Entity heroEntity = Core.Game.Entities.Values.Where(x => x.Id == opponentEntity.GetTag(HERO_ENTITY)).FirstOrDefault();
+
+            TurnState currentTurnState = GameHistory[Core.Game.GetTurnNumber()];
+            Hero currentOpponent = currentTurnState.Heroes.Where(hero => hero.HeroEntityId == heroEntity.Id).FirstOrDefault();
+
+            currentOpponent.Battletag = opponentEntity.Name;
         }
 
         internal void SaveEndGameState()
         {
             Log.Error("DLC - End game");
 
-
             DumpState();
         }
 
         private void DumpState()
         {
+            Log.Error("Ca dump dur ici");
 
+            foreach (var hero in GameHistory[Core.Game.GetTurnNumber()].Heroes)
+            {
+                Log.Error(hero.Battletag);
+            }
         }
-
-        private bool IsFirstTurn()
-        {
-            return false;
-        }
-
-
     }
 }
