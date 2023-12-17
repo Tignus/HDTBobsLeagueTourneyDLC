@@ -17,18 +17,31 @@ namespace HDTBobsLeagueTourneyDLC
 
             for (int rank = 1; rank < 8; rank++)
             {
+                // TODO log hero count
                 Entity heroEntity = getHeroAtRank(rank);
+                if (heroEntity != null)
+                {
+                    Card cardFromId = Database.GetCardFromId(heroEntity.CardId);
+                    string heroName = ((cardFromId != null) ? cardFromId.Name : "");
+                    Log.Info($"Adding hero {heroName} at rank {rank}");
 
-                Card cardFromId = Database.GetCardFromId(heroEntity.CardId);
-                string heroName = ((cardFromId != null) ? cardFromId.Name : "");
-                Log.Info($"Adding hero {heroName} at rank {rank}");
+                    Heroes.Add(new Hero(heroEntity.Id, rank));
+                    Log.Info($"Hero added");
+                }
+                else
+                {
+                    Log.Info("Missing hero");
 
-                Heroes.Add(new Hero(heroEntity.Id, rank));
+                    Log.Info($"Adding disconnected hero at rank {rank}");
+                    Heroes.Add(new Hero(0, rank, "Disconnected ?"));
+                }
+
+
             }
         }
         public TurnState(TurnState previousTurn, int opponentEntityId)
         {
-            for (int i = 0; i < 7; i++)
+            for (int i = 1; i < 8; i++)
             {
                 Entity entity = getHeroAtRank(i);
 
@@ -37,7 +50,7 @@ namespace HDTBobsLeagueTourneyDLC
                     return hero.HeroEntityId == entity.Id;
                 });
 
-                Heroes.Add(new Hero(previousHero, i + 1, false)); // TODO deal with death
+                Heroes.Add(new Hero(previousHero, i, false)); // TODO deal with death
             }
         }
 

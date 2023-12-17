@@ -28,7 +28,6 @@ namespace HDTBobsLeagueTourneyDLC
 
             await AwaitHeroesSelection();
             TurnState newTurn = new TurnState();
-            Log.Info("Logging qfqsd...");
 
             GameHistory = new Dictionary<int, TurnState>
             {
@@ -43,33 +42,23 @@ namespace HDTBobsLeagueTourneyDLC
 
         private async Task AwaitHeroesSelection()
         {
-            const int maxAttempts = 40;
             const int delayBetweenAttempts = 250;
 
             int selectedHeroesCount = 0;
 
             while (selectedHeroesCount != 8)
             {
-                await Task.Delay(delayBetweenAttempts);
+                selectedHeroesCount = Core.Game.Entities.Values.Where(x => x.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE) != 0).Count();
+                Log.Info($"Number of heroes selected: {selectedHeroesCount}.");
+
+                // TODO log hero names as they are picked
 
                 if (selectedHeroesCount == 8)
                 {
                     Log.Info("All heroes have been selected.");
                     break;
                 }
-
-            }
-            for (var i = 0; i < maxAttempts; i++)
-            {
-                Log.Info($"Attempt: {i}. Elapsed: {i * delayBetweenAttempts}");
-
                 await Task.Delay(delayBetweenAttempts);
-
-                if (selectedHeroesCount == 8)
-                {
-                    Log.Info("All heroes have been selected.");
-                    break;
-                }
             }
         }
 
