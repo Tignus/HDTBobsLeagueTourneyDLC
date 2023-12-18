@@ -1,65 +1,60 @@
 ﻿using HearthDb.Enums;
 using Hearthstone_Deck_Tracker.API;
-using Hearthstone_Deck_Tracker.Hearthstone;
 using Hearthstone_Deck_Tracker.Hearthstone.Entities;
 using Hearthstone_Deck_Tracker.Utility.Logging;
 using System.Collections.Generic;
 using System.Linq;
+using static HDTBobsLeagueTourneyDLC.constants.PluginConstants;
 
 namespace HDTBobsLeagueTourneyDLC
 {
     internal class TurnState
     {
         internal List<Hero> Heroes { get; private set; }
+
+        /* This constructor is used only at game start
+         * */
         public TurnState()
         {
-            Heroes = new List<Hero>();
+            int selectedHeroesCount = Core.Game.Entities.Values.Where(x => x.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE) != 0).Count();
 
-            for (int rank = 1; rank < 8; rank++)
+            if (selectedHeroesCount != PLAYER_COUNT)
             {
-                // TODO log hero count
-                Entity heroEntity = getHeroAtRank(rank);
-                if (heroEntity != null)
-                {
-                    Card cardFromId = Database.GetCardFromId(heroEntity.CardId);
-                    string heroName = ((cardFromId != null) ? cardFromId.Name : "");
-                    Log.Info($"Adding hero {heroName} at rank {rank}");
+                Log.Error($"Available heroes count is not {PLAYER_COUNT} ({selectedHeroesCount})");
+            }
 
-                    Heroes.Add(new Hero(heroEntity.Id, rank));
-                    Log.Info($"Hero added");
-                }
-                else
-                {
-                    Log.Info("Missing hero");
-
-                    Log.Info($"Adding disconnected hero at rank {rank}");
-                    Heroes.Add(new Hero(0, rank, "Disconnected ?"));
-                }
-
-
+            Heroes = new List<Hero>();
+            foreach (Entity heroEntity in Core.Game.Entities.Values.Where(x => x.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE) != 0))
+            {
+                Log.Error($"Hero {heroEntity} added.");
+                Heroes.Add(new Hero(heroEntity));
             }
         }
         public TurnState(TurnState previousTurn, int opponentEntityId)
         {
-            for (int i = 1; i < 8; i++)
+            Heroes = new List<Hero>();
+
+            foreach (Entity heroEntity in Core.Game.Entities.Values.Where(x => x.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE) != 0).Take(PLAYER_COUNT))
             {
-                Entity entity = getHeroAtRank(i);
+                int currentPosition = GetHeroPosition(heroEntity);
+
+                if (currentPosition == 0)
+                {
+                    Log.Error($"Hero {heroEntity} is at position 0 in leaderboard");
+                }
 
                 Hero previousHero = previousTurn.Heroes.Find(hero =>
                 {
-                    return hero.HeroEntityId == entity.Id;
+                    return hero.CardID == heroEntity.CardId;
                 });
 
-                Heroes.Add(new Hero(previousHero, i, false)); // TODO deal with death
+                Heroes.Add(new Hero(previousHero, currentPosition, false)); // TODO deal with death
             }
         }
 
-        private Entity getHeroAtRank(int rank)
+        private int GetHeroPosition(Entity heroEntity)
         {
-            return Core.Game.Entities.Values.Where(x => x.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE) == rank).FirstOrDefault();
+            return Core.Game.Entities.Values.Where(x => x.Id == heroEntity.Id).FirstOrDefault().GetTag(GameTag.PLAYER_LEADERBOARD_PLACE);
         }
-
-
-
     }
 }

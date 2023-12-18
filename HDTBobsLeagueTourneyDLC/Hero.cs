@@ -1,33 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Documents;
-using System.Xml.Linq;
+﻿using Hearthstone_Deck_Tracker.Hearthstone;
+using Hearthstone_Deck_Tracker.Hearthstone.Entities;
 
 namespace HDTBobsLeagueTourneyDLC
 {
     internal class Hero
     {
         internal int HeroEntityId { get; private set; }
+        internal string CardID { get; private set; }
 
         private string HeroName;
-
         internal string Battletag { get; set; }
 
         private int Position;
 
         private bool IsDead;
-        public Hero(int heroEntityId, int position, string battletag = "")
+        public Hero(Entity heroEntity)
         {
-            HeroEntityId = heroEntityId; // TODO fix data saving (hero name, ...)
-            Battletag = battletag;
-            Position = position;
+            HeroEntityId = heroEntity.Id; // TODO fix data saving (hero name, ...)
+            CardID = heroEntity.CardId;
+
+            Card cardFromId = Database.GetCardFromId(CardID);
+            string heroName = ((cardFromId != null) ? cardFromId.Name : "");
+            HeroName = heroName;
+
+            Battletag = "";
+            Position = 0;
+            IsDead = false;
         }
-        public Hero(int heroEntityId, string heroName, string battletag, int position, bool isDead)
+        public Hero(int heroEntityId, string cardId, string heroName, string battletag, int position, bool isDead)
         {
             HeroEntityId = heroEntityId;
+            CardID = cardId;
             HeroName = heroName;
             Battletag = battletag;
             Position = position;
@@ -36,6 +39,7 @@ namespace HDTBobsLeagueTourneyDLC
         public Hero(Hero hero, int? Position = null, bool? IsDead = null)
         {
             HeroEntityId = hero.HeroEntityId;
+            CardID = hero.CardID;
             HeroName = hero.HeroName;
             Battletag = hero.Battletag;
             this.Position = Position ?? hero.Position;
@@ -45,6 +49,7 @@ namespace HDTBobsLeagueTourneyDLC
         public Hero Clone(int? Position = null, bool? IsDead = null)
         {
             return new Hero(heroEntityId: HeroEntityId,
+                            cardId: CardID,
                             heroName: HeroName,
                             battletag: Battletag,
                             position: Position ?? this.Position,
