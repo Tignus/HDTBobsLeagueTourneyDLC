@@ -2,7 +2,6 @@
 using Hearthstone_Deck_Tracker.Plugins;
 using System;
 using System.Windows.Controls;
-using static Hearthstone_Deck_Tracker.Windows.MessageDialogs;
 
 namespace HDTBobsLeagueTourneyDLC
 {
@@ -24,13 +23,12 @@ namespace HDTBobsLeagueTourneyDLC
 
         public void OnButtonPress()
         {
-
         }
 
         public void OnLoad()
         {
             GameState = new GameState();
-            GameEvents.OnGameStart.Add(GameState.InitializeGame); 
+            GameEvents.OnGameStart.Add(GameState.InitializeGame);
             GameEvents.OnTurnStart.Add(GameState.HandleNewTurn);
             GameEvents.OnGameEnd.Add(GameState.SaveEndGameState);
 

@@ -14,6 +14,7 @@ namespace HDTBobsLeagueTourneyDLC
 
         /* This constructor is used only at game start
          * */
+
         public TurnState()
         {
             int selectedHeroesCount = Core.Game.Entities.Values.Where(x => x.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE) != 0).Count();
@@ -30,6 +31,7 @@ namespace HDTBobsLeagueTourneyDLC
                 Heroes.Add(new Hero(heroEntity));
             }
         }
+
         public TurnState(TurnState previousTurn, int opponentEntityId)
         {
             Heroes = new List<Hero>();

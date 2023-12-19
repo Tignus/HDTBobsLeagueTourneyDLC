@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using static HDTBobsLeagueTourneyDLC.constants.PluginConstants;
 using static HearthDb.Enums.GameTag;
 
-
 namespace HDTBobsLeagueTourneyDLC
 {
     internal class GameState
@@ -20,7 +19,8 @@ namespace HDTBobsLeagueTourneyDLC
 
         private Dictionary<int, TurnState> GameHistory;
 
-        public GameState() { }
+        public GameState()
+        { }
 
         internal async void InitializeGame()
         {
@@ -140,7 +140,6 @@ namespace HDTBobsLeagueTourneyDLC
                 heroEntity = Core.Game.Entities.Values.Where(x => x.Id == opponentEntity.GetTag(HERO_ENTITY)).FirstOrDefault();
                 await Task.Delay(100);
             } while (heroEntity.CardId == BOB_CARDID);
-
 
             TurnState currentTurnState = GameHistory[Core.Game.GetTurnNumber()];
 
