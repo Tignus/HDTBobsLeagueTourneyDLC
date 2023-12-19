@@ -1,16 +1,13 @@
-﻿using HDTBobsLeagueTourneyDLC.constants;
-using HearthDb.Enums;
+﻿using HearthDb.Enums;
 using Hearthstone_Deck_Tracker.API;
 using Hearthstone_Deck_Tracker.Enums;
-using Hearthstone_Deck_Tracker.Hearthstone;
 using Hearthstone_Deck_Tracker.Hearthstone.Entities;
 using Hearthstone_Deck_Tracker.Utility.Logging;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static HearthDb.Enums.GameTag;
 using static HDTBobsLeagueTourneyDLC.constants.PluginConstants;
+using static HearthDb.Enums.GameTag;
 
 
 namespace HDTBobsLeagueTourneyDLC
@@ -21,13 +18,13 @@ namespace HDTBobsLeagueTourneyDLC
         private int OpponentEntityId = 0;
         private bool IsSpectator;
 
-
         private Dictionary<int, TurnState> GameHistory;
 
         public GameState() { }
 
         internal async void InitializeGame()
         {
+            // TODO Add ourselve in the player list
             await HeroesSelection();
             TurnState newTurn = new TurnState();
 
@@ -35,7 +32,6 @@ namespace HDTBobsLeagueTourneyDLC
             {
                 { Core.Game.GetTurnNumber(), newTurn }
             };
-            LogGameHistory();
 
             FetchBobsEntityId();
 
@@ -65,17 +61,6 @@ namespace HDTBobsLeagueTourneyDLC
             }
         }
 
-        private void LogGameHistory()
-        {
-            Log.Info("Logging GameHistory...");
-
-            foreach (var kvp in GameHistory)
-            {
-                Log.Info(kvp.Key.ToString());
-                Log.Info(kvp.Value.ToString());
-            }
-        }
-
         private void FetchBobsEntityId()
         {
             Log.Info("Time to go get Bob !");
@@ -101,7 +86,7 @@ namespace HDTBobsLeagueTourneyDLC
             OpponentEntityId = opponentEntity.Id;
         }
 
-        internal void HandleNewTurn(ActivePlayer player)
+        internal async void HandleNewTurn(ActivePlayer player)
         {
             Log.Error("DLC - New Turn");
             Log.Error($"DLC - player: {player}");
@@ -111,7 +96,7 @@ namespace HDTBobsLeagueTourneyDLC
 
             if (player == ActivePlayer.Opponent)
             {
-                UpdateBattletag(OpponentEntityId);
+                await UpdateBattletag(OpponentEntityId);
             }
             else if (player == ActivePlayer.Player)
             {
@@ -132,18 +117,30 @@ namespace HDTBobsLeagueTourneyDLC
             GameHistory.Add(Core.Game.GetTurnNumber(), newTurn);
 
             /* Resources :
+             * TODO At least one hero can tranform. It's probably troublesome and we need to deal with it
             //BattlegroundsUtils.GetOriginalHeroId("abc");
             //GameStats
             //GameV2 public bool Spectator;
             */
         }
 
-        private void UpdateBattletag(int opponentEntityId)
+        private async Task UpdateBattletag(int opponentEntityId)
         {
-            Entity opponentEntity = Core.Game.Entities.Values.Where(entity => entity.Id == opponentEntityId).FirstOrDefault();
-            Log.Info($"Name: <{opponentEntity.Name}>");
+            Entity heroEntity = null;
+            Entity opponentEntity = null;
 
-            Entity heroEntity = Core.Game.Entities.Values.Where(x => x.Id == opponentEntity.GetTag(HERO_ENTITY)).FirstOrDefault();
+            /* HDT decided not to "await" for SetHeroAsync() and there can be cases where
+             * opponent is still Bob at the beginning of a fight...
+             */
+            do
+            {
+                opponentEntity = Core.Game.Entities.Values.Where(entity => entity.Id == opponentEntityId).FirstOrDefault();
+                Log.Info($"Name: <{opponentEntity.Name}>");
+
+                heroEntity = Core.Game.Entities.Values.Where(x => x.Id == opponentEntity.GetTag(HERO_ENTITY)).FirstOrDefault();
+                await Task.Delay(100);
+            } while (heroEntity.CardId == BOB_CARDID);
+
 
             TurnState currentTurnState = GameHistory[Core.Game.GetTurnNumber()];
 
@@ -151,12 +148,12 @@ namespace HDTBobsLeagueTourneyDLC
 
             if (currentOpponent == null)
             {
-                Log.Error($"Current opponent {opponentEntity.Name} could not be matched to any known ennemies. Maybe SetHeroAsync() was too slow...");
+                Log.Error($"Current opponent {opponentEntity.Name} could not be matched to any known ennemies.");
             }
-
-            currentOpponent.Battletag = opponentEntity.Name;
-
-            DumpState();
+            else
+            {
+                currentOpponent.Battletag = opponentEntity.Name;
+            }
         }
 
         internal void SaveEndGameState()
@@ -168,11 +165,9 @@ namespace HDTBobsLeagueTourneyDLC
 
         private void DumpState()
         {
-            Log.Error("Ca dump dur ici");
-
-            foreach (var hero in GameHistory[Core.Game.GetTurnNumber()].Heroes)
+            foreach (Hero hero in GameHistory[Core.Game.GetTurnNumber()].Heroes)
             {
-                Log.Error($"Existing name <{hero.Battletag}>");
+                Log.Error($"Existing name <{hero.Battletag}> at <{hero.Position}>");
             }
         }
     }

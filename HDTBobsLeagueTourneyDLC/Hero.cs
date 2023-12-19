@@ -9,9 +9,10 @@ namespace HDTBobsLeagueTourneyDLC
         internal string CardID { get; private set; }
 
         private string HeroName;
-        internal string Battletag { get; set; }
 
-        private int Position;
+        internal string Battletag;
+
+        internal int Position { get; private set; }
 
         private bool IsDead;
         public Hero(Entity heroEntity)
