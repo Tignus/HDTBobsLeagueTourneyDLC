@@ -14,7 +14,7 @@ namespace HDTBobsLeagueTourneyDLC
 
         internal int Position { get; private set; }
 
-        private bool IsDead;
+        private bool IsDead; // What if 2 dead in the same turn ? Is the position correctly fetched ?
 
         public Hero(int heroEntityId, string cardId, string heroName, string battletag, int position, bool isDead)
         {

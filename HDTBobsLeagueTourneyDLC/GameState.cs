@@ -40,6 +40,9 @@ namespace HDTBobsLeagueTourneyDLC
 
         internal async void HandleNewTurn(ActivePlayer player)
         {
+            // TODO Do not initiate and update if game mode is not battleground
+            // TODO What if all heroes are the same
+            // TODO Some hero can transform (not anymore)
             Log.Error("DLC - New Turn");
             Log.Error($"DLC - player: {player}");
             Log.Error($"DLC - turn: {Core.Game.GetTurnNumber()}");
@@ -98,7 +101,7 @@ namespace HDTBobsLeagueTourneyDLC
                 {
                     if (entity.CardId != null)
                     {
-                        return entity.CardId == "TB_BaconShopBob";
+                        return entity.CardId == BOB_CARDID; // Deal Shop skin
                     }
                     else
                     {
