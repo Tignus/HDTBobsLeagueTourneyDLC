@@ -14,10 +14,9 @@ namespace HDTBobsLeagueTourneyDLC
     internal class GameState
     {
         private string Author;
-        private int OpponentEntityId = 0;
-        private bool IsSpectator;
-
         private Dictionary<int, TurnState> GameHistory;
+        private bool IsSpectator;
+        private int OpponentEntityId = 0;
 
         public GameState()
         { }
@@ -36,6 +35,38 @@ namespace HDTBobsLeagueTourneyDLC
             FetchBobsEntityId();
 
             // TODO ? Update Battletag if reconnecting during a fight turn ?
+            // TODO set global var indicating that init is done.
+        }
+
+        internal async void HandleNewTurn(ActivePlayer player)
+        {
+            Log.Error("DLC - New Turn");
+            Log.Error($"DLC - player: {player}");
+            Log.Error($"DLC - turn: {Core.Game.GetTurnNumber()}");
+
+            // TODO add a check (done only once) that the GameHistory has been initialized or wait (global var)
+
+            if (player == ActivePlayer.Opponent)
+            {
+                await UpdateBattletag(OpponentEntityId);
+            }
+            else if (player == ActivePlayer.Player)
+            {
+                SaveNewTurnState();
+            }
+            else
+            {
+                Log.Error("ActivePlayer is None and I don't know why...");
+            }
+
+            DumpState();
+        }
+
+        internal void HandleEndGame()
+        {
+            Log.Error("DLC - End game");
+
+            DumpState();
         }
 
         private async Task HeroesSelection()
@@ -49,8 +80,6 @@ namespace HDTBobsLeagueTourneyDLC
                 selectedHeroesCount = Core.Game.Entities.Values.Where(x => x.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE) != 0).Count();
 
                 Log.Info($"Number of heroes selected: {selectedHeroesCount}.");
-
-                // TODO log hero names as they are picked
 
                 if (selectedHeroesCount == 8)
                 {
@@ -86,44 +115,6 @@ namespace HDTBobsLeagueTourneyDLC
             OpponentEntityId = opponentEntity.Id;
         }
 
-        internal async void HandleNewTurn(ActivePlayer player)
-        {
-            Log.Error("DLC - New Turn");
-            Log.Error($"DLC - player: {player}");
-            Log.Error($"DLC - turn: {Core.Game.GetTurnNumber()}");
-
-            // TODO add a check (done only once) that the GameHistory has been initialized or wait
-
-            if (player == ActivePlayer.Opponent)
-            {
-                await UpdateBattletag(OpponentEntityId);
-            }
-            else if (player == ActivePlayer.Player)
-            {
-                SaveNewTurnState();
-            }
-            else
-            {
-                Log.Error("ActivePlayer is None and I don't know why...");
-            }
-
-            DumpState();
-        }
-
-        private void SaveNewTurnState()
-        {
-            TurnState newTurn = new TurnState(GameHistory[Core.Game.GetTurnNumber() - 1], OpponentEntityId);
-
-            GameHistory.Add(Core.Game.GetTurnNumber(), newTurn);
-
-            /* Resources :
-             * TODO At least one hero can tranform. It's probably troublesome and we need to deal with it
-            //BattlegroundsUtils.GetOriginalHeroId("abc");
-            //GameStats
-            //GameV2 public bool Spectator;
-            */
-        }
-
         private async Task UpdateBattletag(int opponentEntityId)
         {
             Entity heroEntity = null;
@@ -155,18 +146,25 @@ namespace HDTBobsLeagueTourneyDLC
             }
         }
 
-        internal void SaveEndGameState()
+        private void SaveNewTurnState()
         {
-            Log.Error("DLC - End game");
+            TurnState newTurn = new TurnState(GameHistory[Core.Game.GetTurnNumber() - 1], OpponentEntityId);
 
-            DumpState();
+            GameHistory.Add(Core.Game.GetTurnNumber(), newTurn);
+
+            /* Resources :
+             * TODO At least one hero can tranform. It's probably troublesome and we need to deal with it
+            //BattlegroundsUtils.GetOriginalHeroId("abc");
+            //GameStats
+            //GameV2 public bool Spectator;
+            */
         }
 
         private void DumpState()
         {
             foreach (Hero hero in GameHistory[Core.Game.GetTurnNumber()].Heroes)
             {
-                Log.Error($"Existing name <{hero.Battletag}> at <{hero.Position}>");
+                Log.Info($"Opponent <{hero.Battletag}> is at position <{hero.Position}>.");
             }
         }
     }

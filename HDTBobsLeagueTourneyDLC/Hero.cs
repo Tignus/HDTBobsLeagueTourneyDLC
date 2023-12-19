@@ -16,6 +16,16 @@ namespace HDTBobsLeagueTourneyDLC
 
         private bool IsDead;
 
+        public Hero(int heroEntityId, string cardId, string heroName, string battletag, int position, bool isDead)
+        {
+            HeroEntityId = heroEntityId;
+            CardID = cardId;
+            HeroName = heroName;
+            Battletag = battletag;
+            Position = position;
+            IsDead = isDead;
+        }
+
         public Hero(Entity heroEntity)
         {
             HeroEntityId = heroEntity.Id; // TODO fix data saving (hero name, ...)
@@ -28,16 +38,6 @@ namespace HDTBobsLeagueTourneyDLC
             Battletag = "";
             Position = 0;
             IsDead = false;
-        }
-
-        public Hero(int heroEntityId, string cardId, string heroName, string battletag, int position, bool isDead)
-        {
-            HeroEntityId = heroEntityId;
-            CardID = cardId;
-            HeroName = heroName;
-            Battletag = battletag;
-            Position = position;
-            IsDead = isDead;
         }
 
         public Hero(Hero hero, int? Position = null, bool? IsDead = null)

@@ -30,9 +30,9 @@ namespace HDTBobsLeagueTourneyDLC
             GameState = new GameState();
             GameEvents.OnGameStart.Add(GameState.InitializeGame);
             GameEvents.OnTurnStart.Add(GameState.HandleNewTurn);
-            GameEvents.OnGameEnd.Add(GameState.SaveEndGameState);
+            GameEvents.OnGameEnd.Add(GameState.HandleEndGame);
 
-            // Processing GameStart logic in case plugin was loaded/unloaded after starting a game without restarting HDT
+            // TODO Process some logic similar to GameStart in case plugin was loaded/unloaded after starting a game without restarting HDT
             /* anomalyDisplay.HandleGameStart();*/
         }
 
