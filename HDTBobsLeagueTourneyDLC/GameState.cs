@@ -113,7 +113,7 @@ namespace HDTBobsLeagueTourneyDLC
                 {
                     if (entity.CardId != null)
                     {
-                        return entity.CardId == BOB_CARDID; // Deal Shop skin
+                        return entity.CardId.StartsWith(BOB_CARDID_ROOT);
                     }
                     else
                     {
@@ -145,7 +145,7 @@ namespace HDTBobsLeagueTourneyDLC
 
                 heroEntity = Core.Game.Entities.Values.Where(x => x.Id == opponentEntity.GetTag(HERO_ENTITY)).FirstOrDefault();
                 await Task.Delay(100);
-            } while (heroEntity.CardId == BOB_CARDID);
+            } while (heroEntity.CardId == BOB_CARDID_ROOT);
 
             TurnState currentTurnState = GameHistory[Core.Game.GetTurnNumber()];
 
