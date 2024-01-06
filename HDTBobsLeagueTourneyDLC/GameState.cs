@@ -145,7 +145,7 @@ namespace HDTBobsLeagueTourneyDLC
 
                 heroEntity = Core.Game.Entities.Values.Where(x => x.Id == opponentEntity.GetTag(HERO_ENTITY)).FirstOrDefault();
                 await Task.Delay(100);
-            } while (heroEntity.CardId == BOB_CARDID_ROOT);
+            } while (heroEntity.CardId.StartsWith(BOB_CARDID_ROOT));
 
             TurnState currentTurnState = GameHistory[Core.Game.GetTurnNumber()];
 
