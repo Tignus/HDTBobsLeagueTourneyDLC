@@ -1,5 +1,6 @@
 ﻿using HearthDb.Enums;
 using Hearthstone_Deck_Tracker.API;
+using Hearthstone_Deck_Tracker.Hearthstone;
 using Hearthstone_Deck_Tracker.Hearthstone.Entities;
 using Hearthstone_Deck_Tracker.Utility.Logging;
 using System.Collections.Generic;
@@ -24,11 +25,21 @@ namespace HDTBobsLeagueTourneyDLC
                 Log.Error($"Available heroes count is not {PLAYER_COUNT} ({selectedHeroesCount})");
             }
 
+            Player player = Core.Game.Player;
+            string playerHeroCardId = player.Board.FirstOrDefault(x => x.IsHero).CardId;
+
             Heroes = new List<Hero>();
             foreach (Entity heroEntity in Core.Game.Entities.Values.Where(x => x.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE) != 0))
             {
+                Hero hero = new Hero(heroEntity);
+
+                if (hero.CardID == playerHeroCardId)
+                {
+                    hero.Battletag = player.Name;
+                }
+
+                Heroes.Add(hero);
                 Log.Error($"Hero {heroEntity} added.");
-                Heroes.Add(new Hero(heroEntity));
             }
         }
 

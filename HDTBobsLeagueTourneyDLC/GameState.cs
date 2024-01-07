@@ -16,6 +16,7 @@ namespace HDTBobsLeagueTourneyDLC
         private string Author;
         private Dictionary<int, TurnState> GameHistory;
         private bool IsSpectator;
+        private bool IsGameInitialized = false;
         private int OpponentEntityId = 0;
 
         public GameState()
@@ -23,6 +24,10 @@ namespace HDTBobsLeagueTourneyDLC
 
         internal async void InitializeGame()
         {
+            if (Core.Game.CurrentGameMode != GameMode.Battlegrounds)
+                return;
+
+            Log.Error("DLC - New game");
             // TODO Add ourselve in the player list
             await HeroesSelection();
             TurnState newTurn = new TurnState();
@@ -35,19 +40,25 @@ namespace HDTBobsLeagueTourneyDLC
             FetchBobsEntityId();
 
             // TODO ? Update Battletag if reconnecting during a fight turn ?
-            // TODO set global var indicating that init is done.
+            IsGameInitialized = true;
         }
 
         internal async void HandleNewTurn(ActivePlayer player)
         {
-            // TODO Do not initiate and update if game mode is not battleground
+            if (Core.Game.CurrentGameMode != GameMode.Battlegrounds)
+                return;
+
             // TODO What if all heroes are the same
             // TODO Some hero can transform (not anymore)
-            Log.Error("DLC - New Turn");
+            // TODO Use info or warn instead of error when needed
+            Log.Error("DLC - New turn");
             Log.Error($"DLC - player: {player}");
             Log.Error($"DLC - turn: {Core.Game.GetTurnNumber()}");
 
-            // TODO add a check (done only once) that the GameHistory has been initialized or wait (global var)
+            while (IsGameInitialized != true)
+            {
+                await Task.Delay(200);
+            }
 
             if (player == ActivePlayer.Opponent)
             {
@@ -67,6 +78,9 @@ namespace HDTBobsLeagueTourneyDLC
 
         internal void HandleEndGame()
         {
+            if (Core.Game.CurrentGameMode != GameMode.Battlegrounds)
+                return;
+
             Log.Error("DLC - End game");
 
             DumpState();
@@ -101,7 +115,7 @@ namespace HDTBobsLeagueTourneyDLC
                 {
                     if (entity.CardId != null)
                     {
-                        return entity.CardId == BOB_CARDID; // Deal Shop skin
+                        return entity.CardId.StartsWith(BOB_CARDID_ROOT);
                     }
                     else
                     {
@@ -129,11 +143,11 @@ namespace HDTBobsLeagueTourneyDLC
             do
             {
                 opponentEntity = Core.Game.Entities.Values.Where(entity => entity.Id == opponentEntityId).FirstOrDefault();
-                Log.Info($"Name: <{opponentEntity.Name}>");
+                Log.Debug($"Opponent name is still Bob, waiting 100 more milliseconds...");
 
                 heroEntity = Core.Game.Entities.Values.Where(x => x.Id == opponentEntity.GetTag(HERO_ENTITY)).FirstOrDefault();
                 await Task.Delay(100);
-            } while (heroEntity.CardId == BOB_CARDID);
+            } while (heroEntity.CardId.StartsWith(BOB_CARDID_ROOT));
 
             TurnState currentTurnState = GameHistory[Core.Game.GetTurnNumber()];
 
