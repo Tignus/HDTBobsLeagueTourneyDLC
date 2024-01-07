@@ -27,6 +27,7 @@ namespace HDTBobsLeagueTourneyDLC
             if (Core.Game.CurrentGameMode != GameMode.Battlegrounds)
                 return;
 
+            Log.Error("DLC - New game");
             // TODO Add ourselve in the player list
             await HeroesSelection();
             TurnState newTurn = new TurnState();
@@ -49,7 +50,8 @@ namespace HDTBobsLeagueTourneyDLC
 
             // TODO What if all heroes are the same
             // TODO Some hero can transform (not anymore)
-            Log.Error("DLC - New Turn");
+            // TODO Use info or warn instead of error when needed
+            Log.Error("DLC - New turn");
             Log.Error($"DLC - player: {player}");
             Log.Error($"DLC - turn: {Core.Game.GetTurnNumber()}");
 
@@ -141,7 +143,7 @@ namespace HDTBobsLeagueTourneyDLC
             do
             {
                 opponentEntity = Core.Game.Entities.Values.Where(entity => entity.Id == opponentEntityId).FirstOrDefault();
-                Log.Info($"Name: <{opponentEntity.Name}>");
+                Log.Debug($"Opponent name is still Bob, waiting 100 more milliseconds...");
 
                 heroEntity = Core.Game.Entities.Values.Where(x => x.Id == opponentEntity.GetTag(HERO_ENTITY)).FirstOrDefault();
                 await Task.Delay(100);
