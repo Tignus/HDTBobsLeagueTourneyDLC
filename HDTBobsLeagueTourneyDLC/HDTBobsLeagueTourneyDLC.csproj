@@ -1,78 +1,79 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-	<PropertyGroup>
-		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-		<ProjectGuid>{974755C0-3F07-481D-B138-90D2A88D4428}</ProjectGuid>
-		<OutputType>Library</OutputType>
-		<AppDesignerFolder>Properties</AppDesignerFolder>
-		<RootNamespace>HDTBobsLeagueTourneyDLC</RootNamespace>
-		<AssemblyName>HDTBobsLeagueTourneyDLC</AssemblyName>
-		<TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-		<FileAlignment>512</FileAlignment>
-		<Deterministic>true</Deterministic>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<DebugSymbols>true</DebugSymbols>
-		<DebugType>full</DebugType>
-		<Optimize>false</Optimize>
-		<OutputPath>bin\Debug\</OutputPath>
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-		<ErrorReport>prompt</ErrorReport>
-		<WarningLevel>4</WarningLevel>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<DebugType>pdbonly</DebugType>
-		<Optimize>true</Optimize>
-		<OutputPath>bin\Release\</OutputPath>
-		<DefineConstants>TRACE</DefineConstants>
-		<ErrorReport>prompt</ErrorReport>
-		<WarningLevel>4</WarningLevel>
-	</PropertyGroup>
-	<ItemGroup>
-		<Reference Include="HearthDb, Version=27.6.0.0, Culture=neutral, processorArchitecture=MSIL">
-			<SpecificVersion>False</SpecificVersion>
-			<HintPath>references\HearthDb.dll</HintPath>
-		</Reference>
-		<Reference Include="HearthstoneDeckTracker, Version=1.22.10.6349, Culture=neutral, processorArchitecture=x86">
-			<SpecificVersion>False</SpecificVersion>
-			<HintPath>references\HearthstoneDeckTracker.exe</HintPath>
-		</Reference>
-		<Reference Include="PresentationCore" />
-		<Reference Include="PresentationFramework" />
-		<Reference Include="System" />
-		<Reference Include="System.Core" />
-		<Reference Include="System.Xml.Linq" />
-		<Reference Include="System.Data.DataSetExtensions" />
-		<Reference Include="Microsoft.CSharp" />
-		<Reference Include="System.Data" />
-		<Reference Include="System.Net.Http" />
-		<Reference Include="System.Xml" />
-		<Reference Include="WindowsBase" />
-	</ItemGroup>
-	<ItemGroup>
-		<Compile Include="constants\PluginConstants.cs" />
-		<Compile Include="GameState.cs" />
-		<Compile Include="HDTBobsLeagueTourneyDLCPlugin.cs" />
-		<Compile Include="Hero.cs" />
-		<Compile Include="TurnState.cs" />
-		<Compile Include="Properties\AssemblyInfo.cs" />
-	</ItemGroup>
-	<ItemGroup>
-		<Content Include="references\HearthDb.dll" />
-		<Content Include="references\HearthstoneDeckTracker.exe" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include=".editorconfig" />
-	</ItemGroup>
-	<Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-	<PropertyGroup>
-		<PreBuildEvent>
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{974755C0-3F07-481D-B138-90D2A88D4428}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>HDTBobsLeagueTourneyDLC</RootNamespace>
+    <AssemblyName>HDTBobsLeagueTourneyDLC</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="HearthDb, Version=27.6.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>references\HearthDb.dll</HintPath>
+    </Reference>
+    <Reference Include="HearthstoneDeckTracker, Version=1.22.10.6349, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>references\HearthstoneDeckTracker.exe</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="constants\PluginConstants.cs" />
+    <Compile Include="GameState.cs" />
+    <Compile Include="HDTBobsLeagueTourneyDLCPlugin.cs" />
+    <Compile Include="Hero.cs" />
+    <Compile Include="Log.cs" />
+    <Compile Include="TurnState.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="references\HearthDb.dll" />
+    <Content Include="references\HearthstoneDeckTracker.exe" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".editorconfig" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
 			powershell.exe -Command "if (Get-Process HearthstoneDeckTracker -ErrorAction SilentlyContinue) { Stop-Process -Name HearthstoneDeckTracker -Force }"
 		</PreBuildEvent>
-	</PropertyGroup>
-	<PropertyGroup>
-		<PostBuildEvent>powershell.exe -Command "Copy-Item '.\HDTBobsLeagueTourneyDLC.dll' -Destination '%25AppData%25\HearthstoneDeckTracker\Plugins\' -Force; Start-Process '%25LocalAppData%25\HearthstoneDeckTracker\HearthstoneDeckTracker.exe'"</PostBuildEvent>
-	</PropertyGroup>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>powershell.exe -Command "Copy-Item '.\HDTBobsLeagueTourneyDLC.dll' -Destination '%25AppData%25\HearthstoneDeckTracker\Plugins\' -Force; Start-Process '%25LocalAppData%25\HearthstoneDeckTracker\HearthstoneDeckTracker.exe'"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
