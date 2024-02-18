@@ -1,63 +1,90 @@
-﻿using Hearthstone_Deck_Tracker.Hearthstone;
+﻿using HearthDb.Enums;
+using Hearthstone_Deck_Tracker.API;
+using Hearthstone_Deck_Tracker.Hearthstone;
 using Hearthstone_Deck_Tracker.Hearthstone.Entities;
+using System.Text;
 
 namespace HDTBobsLeagueTourneyDLC
 {
+    /**
+     * Represents a BattleGrounds hero snapshot at a given time
+     */
+
     internal class Hero
     {
         internal int HeroEntityId { get; private set; }
-        internal string CardID { get; private set; }
+        internal string CardId { get; private set; }
 
-        private string HeroName;
+        internal string HeroName { get; private set; }
 
         internal string Battletag;
 
         internal int Position { get; private set; }
 
-        private bool IsDead; // What if 2 dead in the same turn ? Is the position correctly fetched ?
+        internal int Health;
 
-        public Hero(int heroEntityId, string cardId, string heroName, string battletag, int position, bool isDead)
+        internal bool IsDead;
+
+        public Hero(int heroEntityId, string cardId, string heroName, string battletag, int position, Entity heroEntity)
         {
             HeroEntityId = heroEntityId;
-            CardID = cardId;
+            CardId = cardId;
             HeroName = heroName;
             Battletag = battletag;
             Position = position;
-            IsDead = isDead;
+            Health = heroEntity.Health;
+            IsDead = heroEntity.Health <= 0;
         }
 
         public Hero(Entity heroEntity)
         {
-            HeroEntityId = heroEntity.Id; // TODO fix data saving (hero name, ...)
-            CardID = heroEntity.CardId;
+            HeroEntityId = heroEntity.Id;
+            CardId = heroEntity.CardId;
 
-            Card cardFromId = Database.GetCardFromId(CardID);
+            Card cardFromId = Database.GetCardFromId(CardId);
             string heroName = ((cardFromId != null) ? cardFromId.Name : "");
             HeroName = heroName;
 
             Battletag = "";
-            Position = 0;
-            IsDead = false;
+
+            // Checking turn number in case the history is being initialized while already ingame
+            if (Core.Game.GetTurnNumber() > 1)
+            {
+                Position = heroEntity.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE);
+            }
+            else
+            {
+                Position = 0;
+            }
+
+            Health = heroEntity.Health;
+
+            IsDead = heroEntity.Health <= 0;
         }
 
-        public Hero(Hero hero, int? Position = null, bool? IsDead = null)
+        public Hero(Hero hero, Entity heroEntity, int? Position = null)
         {
             HeroEntityId = hero.HeroEntityId;
-            CardID = hero.CardID;
+            CardId = hero.CardId;
             HeroName = hero.HeroName;
             Battletag = hero.Battletag;
+
             this.Position = Position ?? hero.Position;
-            this.IsDead = IsDead ?? hero.IsDead;
+
+            Health = heroEntity.Health;
+            IsDead = heroEntity.Health <= 0;
         }
 
-        public Hero Clone(int? Position = null, bool? IsDead = null)
+        public override string ToString()
         {
-            return new Hero(heroEntityId: HeroEntityId,
-                            cardId: CardID,
-                            heroName: HeroName,
-                            battletag: Battletag,
-                            position: Position ?? this.Position,
-                            isDead: IsDead ?? this.IsDead);
+            return new StringBuilder().Append($"HeroEntityId: {HeroEntityId}, ")
+                                      .Append($"CardID: {CardId}, ")
+                                      .Append($"HeroName: {HeroName}, ")
+                                      .Append($"Battletag: {Battletag}, ")
+                                      .Append($"Position: {Position}, ")
+                                      .Append($"Health: {Health}, ")
+                                      .Append($"IsDead: {IsDead}")
+                                      .ToString();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Hearthstone_Deck_Tracker.API;
 using Hearthstone_Deck_Tracker.Plugins;
+using Hearthstone_Deck_Tracker.Utility.Logging;
 using System;
 using System.Windows.Controls;
 
@@ -28,16 +29,18 @@ namespace HDTBobsLeagueTourneyDLC
         public void OnLoad()
         {
             GameState = new GameState();
+            // Initializing in case plugin was loaded/unloaded after starting a game without restarting HDT ?
+            // It is tricky to call it here because of how HDT replays every GameEvents if you restart it
+            //GameState.InitializeGame();
+
             GameEvents.OnGameStart.Add(GameState.InitializeGame);
             GameEvents.OnTurnStart.Add(GameState.HandleNewTurn);
             GameEvents.OnGameEnd.Add(GameState.HandleEndGame);
-
-            // TODO Process some logic similar to GameStart in case plugin was loaded/unloaded after starting a game without restarting HDT
-            /* anomalyDisplay.HandleGameStart();*/
         }
 
         public void OnUnload()
         {
+            GameState = null;
         }
 
         public void OnUpdate()

@@ -5,6 +5,7 @@ using Hearthstone_Deck_Tracker.Hearthstone.Entities;
 using Hearthstone_Deck_Tracker.Utility.Logging;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using static HDTBobsLeagueTourneyDLC.constants.PluginConstants;
 
 namespace HDTBobsLeagueTourneyDLC
@@ -33,41 +34,53 @@ namespace HDTBobsLeagueTourneyDLC
             {
                 Hero hero = new Hero(heroEntity);
 
-                if (hero.CardID == playerHeroCardId)
+                if (hero.CardId == playerHeroCardId)
                 {
                     hero.Battletag = player.Name;
                 }
 
                 Heroes.Add(hero);
-                Log.Error($"Hero {heroEntity} added.");
+                Log.Error($"Hero {Database.GetCardFromId(heroEntity.CardId).Name} added.");
             }
         }
 
-        public TurnState(TurnState previousTurn, int opponentEntityId)
+        public TurnState(TurnState previousTurn)
         {
             Heroes = new List<Hero>();
 
             foreach (Entity heroEntity in Core.Game.Entities.Values.Where(x => x.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE) != 0).Take(PLAYER_COUNT))
             {
                 int currentPosition = GetHeroPosition(heroEntity);
-
-                if (currentPosition == 0)
-                {
-                    Log.Error($"Hero {heroEntity} is at position 0 in leaderboard");
-                }
+                bool isDead = heroEntity.Health <= 0;
 
                 Hero previousHero = previousTurn.Heroes.Find(hero =>
                 {
-                    return hero.CardID == heroEntity.CardId;
+                    // Wil not works with skins since TransformableHeroCardidTable is incomplete
+                    return hero.CardId == BattlegroundsUtils.GetOriginalHeroId(heroEntity.CardId);
                 });
 
-                Heroes.Add(new Hero(previousHero, currentPosition, false)); // TODO deal with death
+                Heroes.Add(new Hero(previousHero, heroEntity, currentPosition));
             }
         }
 
         private int GetHeroPosition(Entity heroEntity)
         {
+            if (Core.Game.GetTurnNumber() == 1)
+            {
+                return 0;
+            }
             return Core.Game.Entities.Values.Where(x => x.Id == heroEntity.Id).FirstOrDefault().GetTag(GameTag.PLAYER_LEADERBOARD_PLACE);
+        }
+
+        public override string ToString()
+        {
+            var stringBuilder = new StringBuilder();
+
+            foreach (var hero in Heroes)
+            {
+                stringBuilder.AppendLine(hero.ToString());
+            }
+            return stringBuilder.ToString();
         }
     }
 }
