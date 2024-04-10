@@ -4,6 +4,6 @@
     {
         public const int PLAYER_COUNT = 8;
 
-        public const string BOB_CARDID = "TB_BaconShopBob";
+        public const string BOB_CARDID_ROOT = "TB_BaconShopBob";
     }
 }
