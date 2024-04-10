@@ -63,26 +63,26 @@ namespace HDTBobsLeagueTourneyDLC
 
             // TODO (Spectator) Update Battletag if reconnecting during a fight turn ?
             IsGameInitialized = true;
-            Log.Error($"DLC - Init done for turn {currentTurn}!");
+            Log.Info($"Init done for turn {currentTurn}!");
             DumpState("Init", currentTurn);
         }
 
         internal async void HandleNewTurn(ActivePlayer player)
         {
-            if (Core.Game.CurrentGameMode != GameMode.Battlegrounds)
+            Log.Error($"CurrentGameMode: {Core.Game.CurrentGameMode}");
+            Log.Error($"Spectator: {Core.Game.Spectator}");
+            Log.Error($"CurrentGameMode: {Core.Game.IsBattlegroundsMatch}");
+
+            if (Core.Game.CurrentGameMode != GameMode.Battlegrounds) // TODO Maybe use Core.Game.IsBattlegroundsMatch for spec mode
                 return;
 
             int currentTurn = Core.Game.GetTurnNumber();
-
-            Log.Error("DLC - New turn");
-            Log.Error($"DLC - player: {player}");
-            Log.Error($"DLC - turn: {currentTurn}");
 
             if (player == ActivePlayer.Player)
             {
                 // In case of async new turn event "flood", preventing later turns from being stored too soon
                 IsTurnBeingStored[currentTurn] = true;
-                Log.Info($"Turn: {currentTurn} added to queue");
+                Log.Debug($"Turn: {currentTurn} added to queue");
             }
 
             int i = 0;
@@ -100,14 +100,14 @@ namespace HDTBobsLeagueTourneyDLC
                 Log.Debug($"Turn {currentTurn} not allowed yet. Waiting 200ms for the {i}th time.");
                 await Task.Delay(200);
             }
-            Log.Info($"Turn {currentTurn} can be handled for phase {player}");
+            Log.Debug($"Turn {currentTurn} can be handled for phase {player}");
 
             bool isTurnAdded = false;
             if (player == ActivePlayer.Player)
             {
                 isTurnAdded = SaveNewTurnState();
                 IsTurnBeingStored[currentTurn] = false;
-                Log.Info($"Turn: {currentTurn} removed from queue");
+                Log.Debug($"Turn: {currentTurn} removed from queue");
             }
             else if (player == ActivePlayer.Opponent)
             {
@@ -128,8 +128,7 @@ namespace HDTBobsLeagueTourneyDLC
         {
             if (Core.Game.CurrentGameMode != GameMode.Battlegrounds)
                 return;
-            Log.Error("DLC - End game");
-            Log.Error($"DLC - Final turn: {Core.Game.GetTurnNumber()}");
+            Log.Error($"Final turn: {Core.Game.GetTurnNumber()}");
 
             // TODO (Spectator) Make sure this is called when speccing
 
